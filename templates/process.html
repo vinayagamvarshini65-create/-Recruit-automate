@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Generate & Send - Recruit Automate{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Generate &amp; send</h1>
+  <p class="subtitle">Select pending candidates, review a preview, and send their offer documents</p>
+</div>
+
+{% if dry_run %}
+<div class="banner banner-info">
+  <strong>Demo mode:</strong> emails will be composed and saved to <code>data/outbox/</code> rather than
+  delivered, since no SMTP server is configured.
+</div>
+{% endif %}
+
+{% if not doc_template or not email_template %}
+<div class="banner banner-warning">No templates found. Please configure templates first.</div>
+{% elif not candidates %}
+<p class="empty-state">No pending candidates. Import or add candidates to get started.</p>
+{% else %}
+
+<div class="panel">
+  <h2>Preview</h2>
+  <p class="muted">Click a candidate below to preview their merged document and email.</p>
+  <div id="preview-box" class="preview-box">
+    <p class="muted">Select a candidate to see a live preview here.</p>
+  </div>
+</div>
+
+<div class="panel">
+  <form method="POST" action="{{ url_for('run_process') }}" id="process-form">
+    <div class="panel-header-row">
+      <h2>Pending candidates ({{ candidates|length }})</h2>
+      <div>
+        <button type="button" class="btn" onclick="toggleAll(true)">Select all</button>
+        <button type="button" class="btn" onclick="toggleAll(false)">Clear</button>
+      </div>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr><th></th><th>Name</th><th>Email</th><th>Role</th><th>Joining date</th></tr>
+      </thead>
+      <tbody>
+        {% for c in candidates %}
+        <tr>
+          <td><input type="checkbox" name="candidate_ids" value="{{ c.id }}" class="cand-check"></td>
+          <td><a href="javascript:void(0)" onclick="loadPreview({{ c.id }})">{{ c.name }}</a></td>
+          <td class="muted">{{ c.email }}</td>
+          <td>{{ c.role or '-' }}</td>
+          <td>{{ c.joining_date or '-' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary" style="margin-top: 16px;">
+      Generate documents &amp; send emails for selected
+    </button>
+  </form>
+</div>
+
+{% endif %}
+
+<script>
+function toggleAll(state) {
+  document.querySelectorAll('.cand-check').forEach(cb => cb.checked = state);
+}
+
+async function loadPreview(candidateId) {
+  const box = document.getElementById('preview-box');
+  box.innerHTML = '<p class="muted">Loading preview...</p>';
+  try {
+    const res = await fetch(`/process/preview/${candidateId}`);
+    const data = await res.json();
+    if (data.error) {
+      box.innerHTML = `<p class="muted">${data.error}</p>`;
+      return;
+    }
+    let missingHtml = '';
+    if (data.missing_fields && data.missing_fields.length) {
+      missingHtml = `<div class="banner banner-warning">Missing values for: ${data.missing_fields.join(', ')}</div>`;
+    }
+    box.innerHTML = `
+      ${missingHtml}
+      <div class="preview-columns">
+        <div>
+          <h3>Email</h3>
+          <p class="muted small">Subject</p>
+          <p><strong>${escapeHtml(data.email_subject)}</strong></p>
+          <p class="muted small">Body</p>
+          <pre class="preview-text">${escapeHtml(data.email_body)}</pre>
+        </div>
+        <div>
+          <h3>Attached document</h3>
+          <pre class="preview-text">${escapeHtml(data.document_preview)}</pre>
+        </div>
+      </div>
+    `;
+  } catch (e) {
+    box.innerHTML = '<p class="muted">Could not load preview.</p>';
+  }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+</script>
+
+{% endblock %}

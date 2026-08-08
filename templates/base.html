@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Recruitment Automation{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">RA</span>
+      <span class="brand-name">Recruit Automate</span>
+    </div>
+    <nav>
+      <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint=='dashboard' }}">Dashboard</a>
+      <a href="{{ url_for('candidates') }}" class="{{ 'active' if request.endpoint=='candidates' }}">Candidates</a>
+      <a href="{{ url_for('upload') }}" class="{{ 'active' if request.endpoint=='upload' }}">Import CSV</a>
+      <a href="{{ url_for('templates_page') }}" class="{{ 'active' if request.endpoint=='templates_page' }}">Templates</a>
+      <a href="{{ url_for('process_page') }}" class="{{ 'active' if request.endpoint=='process_page' }}">Generate &amp; Send</a>
+      <a href="{{ url_for('log_page') }}" class="{{ 'active' if request.endpoint=='log_page' }}">Activity Log</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-stack">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+</div>
+</body>
+</html>

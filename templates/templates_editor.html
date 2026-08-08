@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Templates - Recruit Automate{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Templates</h1>
+  <p class="subtitle">Edit the document and email templates used when generating offers</p>
+</div>
+
+<div class="banner banner-info">
+  Use merge fields in any template: <code>{{ '{{name}}' }}</code>, <code>{{ '{{email}}' }}</code>,
+  <code>{{ '{{role}}' }}</code>, <code>{{ '{{department}}' }}</code>, <code>{{ '{{salary}}' }}</code>,
+  <code>{{ '{{joining_date}}' }}</code>, <code>{{ '{{today}}' }}</code>
+</div>
+
+{% for t in templates %}
+<div class="panel">
+  <h2>{{ t.name }} <span class="muted small">({{ t.kind }})</span></h2>
+  <form method="POST" action="{{ url_for('save_template', template_id=t.id) }}" class="stacked-form">
+    <label>Template name</label>
+    <input type="text" name="name" value="{{ t.name }}" required>
+
+    {% if t.kind == 'email' %}
+    <label>Email subject line</label>
+    <input type="text" name="subject" value="{{ t.subject or '' }}">
+    {% else %}
+    <input type="hidden" name="subject" value="">
+    {% endif %}
+
+    <label>{{ 'Document body' if t.kind == 'document' else 'Email body' }}</label>
+    <textarea name="body" rows="14">{{ t.body }}</textarea>
+
+    <button type="submit" class="btn btn-primary">Save template</button>
+  </form>
+</div>
+{% endfor %}
+
+{% endblock %}

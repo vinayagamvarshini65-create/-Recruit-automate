@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Import CSV - Recruit Automate{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Import candidates</h1>
+  <p class="subtitle">Bulk-add candidates from a CSV file instead of entering them one by one</p>
+</div>
+
+<div class="panel">
+  <h2>Upload CSV</h2>
+  <p class="muted">
+    Required columns: <code>name</code>, <code>email</code>.
+    Optional columns: <code>role</code>, <code>department</code>, <code>salary</code>, <code>joining_date</code>.
+  </p>
+  <form method="POST" action="{{ url_for('upload') }}" enctype="multipart/form-data" class="stacked-form">
+    <input type="file" name="csv_file" accept=".csv" required>
+    <button type="submit" class="btn btn-primary">Import candidates</button>
+  </form>
+  <p class="muted small" style="margin-top: 16px;">
+    Not sure about the format? <a href="{{ url_for('download_sample_csv') }}">Download a sample CSV</a> to use as a starting point.
+  </p>
+</div>
+
+{% endblock %}

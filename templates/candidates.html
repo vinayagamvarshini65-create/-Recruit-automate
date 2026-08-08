@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Candidates - Recruit Automate{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Candidates</h1>
+  <p class="subtitle">Manage candidate records and review their status</p>
+</div>
+
+<div class="panel">
+  <h2>Add a candidate</h2>
+  <form method="POST" action="{{ url_for('add_candidate') }}" class="inline-form">
+    <input type="text" name="name" placeholder="Full name" required>
+    <input type="email" name="email" placeholder="Email address" required>
+    <input type="text" name="role" placeholder="Role / position">
+    <input type="text" name="department" placeholder="Department">
+    <input type="text" name="salary" placeholder="Salary (e.g. $85,000/year)">
+    <input type="text" name="joining_date" placeholder="Joining date (e.g. Sept 1, 2026)">
+    <button type="submit" class="btn btn-primary">Add candidate</button>
+  </form>
+</div>
+
+<div class="panel">
+  <div class="panel-header-row">
+    <h2>All candidates</h2>
+    <div class="filter-tabs">
+      <a href="{{ url_for('candidates', status='all') }}" class="{{ 'active' if status_filter=='all' }}">All</a>
+      <a href="{{ url_for('candidates', status='pending') }}" class="{{ 'active' if status_filter=='pending' }}">Pending</a>
+      <a href="{{ url_for('candidates', status='sent') }}" class="{{ 'active' if status_filter=='sent' }}">Sent</a>
+      <a href="{{ url_for('candidates', status='failed') }}" class="{{ 'active' if status_filter=='failed' }}">Failed</a>
+    </div>
+  </div>
+
+  {% if candidates %}
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Name</th><th>Email</th><th>Role</th><th>Department</th>
+        <th>Joining date</th><th>Status</th><th>Document</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in candidates %}
+      <tr>
+        <td>{{ c.name }}</td>
+        <td class="muted">{{ c.email }}</td>
+        <td>{{ c.role or '-' }}</td>
+        <td>{{ c.department or '-' }}</td>
+        <td>{{ c.joining_date or '-' }}</td>
+        <td>
+          <span class="badge badge-{{ 'success' if c.status=='sent' else ('failed' if c.status=='failed' else 'pending') }}">
+            {{ c.status }}
+          </span>
+          {% if c.status == 'failed' and c.error_message %}
+            <div class="muted small">{{ c.error_message }}</div>
+          {% endif %}
+        </td>
+        <td>
+          {% if c.document_path %}
+            <a href="{{ url_for('download_document', candidate_id=c.id) }}">Download PDF</a>
+          {% else %}
+            <span class="muted">-</span>
+          {% endif %}
+        </td>
+        <td>
+          <form method="POST" action="{{ url_for('delete_candidate', candidate_id=c.id) }}"
+                onsubmit="return confirm('Remove {{ c.name }}?');">
+            <button type="submit" class="btn-link-danger">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty-state">No candidates in this view yet.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

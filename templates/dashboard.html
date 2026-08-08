@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Recruit Automate{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Dashboard</h1>
+  <p class="subtitle">Overview of your recruitment communication pipeline</p>
+</div>
+
+{% if dry_run %}
+<div class="banner banner-info">
+  <strong>Demo mode:</strong> no SMTP server is configured, so emails are generated and saved to
+  <code>data/outbox/</code> instead of actually being sent. Set <code>SMTP_HOST</code> and related
+  environment variables (see README) to enable real sending.
+</div>
+{% endif %}
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-value">{{ stats.total or 0 }}</div>
+    <div class="stat-label">Total candidates</div>
+  </div>
+  <div class="stat-card stat-pending">
+    <div class="stat-value">{{ stats.pending or 0 }}</div>
+    <div class="stat-label">Pending</div>
+  </div>
+  <div class="stat-card stat-sent">
+    <div class="stat-value">{{ stats.sent or 0 }}</div>
+    <div class="stat-label">Sent</div>
+  </div>
+  <div class="stat-card stat-failed">
+    <div class="stat-value">{{ stats.failed or 0 }}</div>
+    <div class="stat-label">Failed</div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Quick actions</h2>
+  <div class="quick-actions">
+    <a class="btn btn-primary" href="{{ url_for('upload') }}">Import candidates (CSV)</a>
+    <a class="btn" href="{{ url_for('candidates') }}">Add candidate manually</a>
+    <a class="btn" href="{{ url_for('process_page') }}">Generate &amp; send offers</a>
+    <a class="btn" href="{{ url_for('templates_page') }}">Edit templates</a>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Recent activity</h2>
+  {% if recent_log %}
+  <table class="data-table">
+    <thead>
+      <tr><th>Time</th><th>Candidate</th><th>Action</th><th>Status</th><th>Detail</th></tr>
+    </thead>
+    <tbody>
+      {% for entry in recent_log %}
+      <tr>
+        <td>{{ entry.timestamp }}</td>
+        <td>{{ entry.name }}</td>
+        <td>{{ entry.action }}</td>
+        <td><span class="badge badge-{{ 'success' if entry.status == 'success' else 'failed' }}">{{ entry.status }}</span></td>
+        <td class="muted">{{ entry.detail }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty-state">No activity yet. Import candidates and run Generate &amp; Send to get started.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

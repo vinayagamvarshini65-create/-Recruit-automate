@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Activity Log - Recruit Automate{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Activity log</h1>
+  <p class="subtitle">Full audit trail of document generation and email send events</p>
+</div>
+
+<div class="panel">
+  {% if log %}
+  <table class="data-table">
+    <thead>
+      <tr><th>Time</th><th>Candidate</th><th>Email</th><th>Action</th><th>Status</th><th>Detail</th></tr>
+    </thead>
+    <tbody>
+      {% for entry in log %}
+      <tr>
+        <td>{{ entry.timestamp }}</td>
+        <td>{{ entry.name }}</td>
+        <td class="muted">{{ entry.email }}</td>
+        <td>{{ entry.action }}</td>
+        <td><span class="badge badge-{{ 'success' if entry.status == 'success' else 'failed' }}">{{ entry.status }}</span></td>
+        <td class="muted">{{ entry.detail }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty-state">No activity recorded yet.</p>
+  {% endif %}
+</div>
+
+{% endblock %}
