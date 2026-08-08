@@ -8,8 +8,6 @@ Built as a working MVP of the solution proposal: candidate data → document
 generation → email composition → send & track, all in one dashboard instead
 of juggling spreadsheets, Word, and a mail client.
 
-# LIVE APP : https://recruit-automate.onrender.com/
-
 ## Features
 
 - **Candidate management** — add candidates manually or bulk-import via CSV
