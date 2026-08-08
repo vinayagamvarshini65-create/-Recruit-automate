@@ -4,6 +4,9 @@ A small, self-contained recruitment email automation system: import candidates,
 auto-generate personalized offer letters (PDF), and send them by email with
 one click — with full status tracking.
 
+**Live demo:** [https://recruit-automate.onrender.com](https://recruit-automate.onrender.com)
+*(Note: hosted on Render's free tier — the app may take 30-50 seconds to wake up if it's been idle, and the demo database resets on redeploy.)*
+
 Built as a working MVP of the solution proposal: candidate data → document
 generation → email composition → send & track, all in one dashboard instead
 of juggling spreadsheets, Word, and a mail client.
